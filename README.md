@@ -23,6 +23,6 @@ This code handles the batch logic of gathering, ordering, and concatenating the 
 
 ### Space and time considerations
 
-The application requires a considerable amount of storage space to run; roughly twice the original files' usage. Most of this space will be freed again once the application is finished running.
+The application requires a considerable amount of storage space to run, roughly equivalent to the original files' usage. Most of this space will be freed again once the application is finished running.
 
 Converting large batches of files may take a considerable amount of time. Tweaking the FFmpeg settings in the `.env` file can speed up processing at the cost of video quality.
