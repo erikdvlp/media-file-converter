@@ -1,7 +1,9 @@
 from FileConverter import FileConverter
+from LogManager import LogManager
 
+logger = LogManager()
 try:
-    fc = FileConverter()
+    fc = FileConverter(logger)
     fc.start()
 except Exception as e:
-    print(e)
+    logger.error(e)

@@ -4,11 +4,16 @@ import shutil
 from dotenv import load_dotenv
 from tqdm import tqdm
 
-from exceptions import MissingEnvException, MissingEnvValueException
+from exceptions import (
+    MissingEmptyInputDirException,
+    MissingEnvException,
+    MissingEnvValueException,
+)
 
 
 class FileConverter:
-    def __init__(self) -> None:
+    def __init__(self, logger) -> None:
+        self.logger = logger
         self.load_env()
         self.set_up_dirs()
 
@@ -25,13 +30,15 @@ class FileConverter:
         self.input_files: list[str] = []
 
     def set_up_dirs(self) -> None:
-        required_dirs = [self.output_dir, f'{self.output_dir}{os.sep}chunks']
-        for required_dir in required_dirs:
-            if not os.path.exists(required_dir):
-                os.makedirs(required_dir)
+        if not os.path.exists(self.input_dir) or not os.listdir(self.input_dir):
+            raise MissingEmptyInputDirException
+        dirs_to_create = [self.output_dir, f'{self.output_dir}{os.sep}chunks']
+        for dir_to_create in dirs_to_create:
+            if not os.path.exists(dir_to_create):
+                os.makedirs(dir_to_create)
 
     def get_input_files(self) -> None:
-        print('Gathering input files...')
+        self.logger.info('Gathering input files...')
         input_files = []
         for root, _dirs, files in os.walk(self.input_dir):
             for file in files:
@@ -45,14 +52,14 @@ class FileConverter:
         os.system(command)
 
     def convert_files(self) -> None:
-        print('Converting .media files to a viewable format...')
+        self.logger.info('Converting .media files to a viewable format...')
         iteration = 0
         for input_file in tqdm(self.input_files):
             iteration += 1
             self.convert_file(input_file, iteration)
 
     def combine_chunks(self) -> None:
-        print('Combining video chunks...')
+        self.logger.info('Combining video chunks...')
         chunks = os.listdir(f'{self.output_dir}{os.sep}chunks')
         for chunk in chunks:
             if '.media' not in chunk:
@@ -73,4 +80,4 @@ class FileConverter:
         self.convert_files()
         self.combine_chunks()
         self.clean_up()
-        print('Finished.')
+        self.logger.info('Finished.')
