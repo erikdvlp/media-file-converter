@@ -4,11 +4,16 @@ import shutil
 from dotenv import load_dotenv
 from tqdm import tqdm
 
-from exceptions import MissingEmptyInputDirException, MissingEnvException, MissingEnvValueException
+from exceptions import (
+    MissingEmptyInputDirException,
+    MissingEnvException,
+    MissingEnvValueException,
+)
 
 
 class FileConverter:
-    def __init__(self) -> None:
+    def __init__(self, logger) -> None:
+        self.logger = logger
         self.load_env()
         self.set_up_dirs()
 
@@ -33,7 +38,7 @@ class FileConverter:
                 os.makedirs(dir_to_create)
 
     def get_input_files(self) -> None:
-        print('Gathering input files...')
+        self.logger.info('Gathering input files...')
         input_files = []
         for root, _dirs, files in os.walk(self.input_dir):
             for file in files:
@@ -47,14 +52,14 @@ class FileConverter:
         os.system(command)
 
     def convert_files(self) -> None:
-        print('Converting .media files to a viewable format...')
+        self.logger.info('Converting .media files to a viewable format...')
         iteration = 0
         for input_file in tqdm(self.input_files):
             iteration += 1
             self.convert_file(input_file, iteration)
 
     def combine_chunks(self) -> None:
-        print('Combining video chunks...')
+        self.logger.info('Combining video chunks...')
         chunks = os.listdir(f'{self.output_dir}{os.sep}chunks')
         for chunk in chunks:
             if '.media' not in chunk:
@@ -75,4 +80,4 @@ class FileConverter:
         self.convert_files()
         self.combine_chunks()
         self.clean_up()
-        print('Finished.')
+        self.logger.info('Finished.')
