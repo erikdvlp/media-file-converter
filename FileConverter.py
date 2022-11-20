@@ -4,7 +4,7 @@ import shutil
 from dotenv import load_dotenv
 from tqdm import tqdm
 
-from exceptions import MissingEnvException, MissingEnvValueException
+from exceptions import MissingEmptyInputDirException, MissingEnvException, MissingEnvValueException
 
 
 class FileConverter:
@@ -25,10 +25,12 @@ class FileConverter:
         self.input_files: list[str] = []
 
     def set_up_dirs(self) -> None:
-        required_dirs = [self.output_dir, f'{self.output_dir}{os.sep}chunks']
-        for required_dir in required_dirs:
-            if not os.path.exists(required_dir):
-                os.makedirs(required_dir)
+        if not os.path.exists(self.input_dir) or not os.listdir(self.input_dir):
+            raise MissingEmptyInputDirException
+        dirs_to_create = [self.output_dir, f'{self.output_dir}{os.sep}chunks']
+        for dir_to_create in dirs_to_create:
+            if not os.path.exists(dir_to_create):
+                os.makedirs(dir_to_create)
 
     def get_input_files(self) -> None:
         print('Gathering input files...')
